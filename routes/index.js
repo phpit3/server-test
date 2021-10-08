@@ -27,22 +27,37 @@ router.post('/join', async (req, res) => {
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
+                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    owner: 'player' + __room.currentCount,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
+                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    owner: 'player' + __room.currentCount,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
+                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    owner: 'player' + __room.currentCount,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
+                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    owner: 'player' + __room.currentCount,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
+                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    owner: 'player' + __room.currentCount,
                 }
             ],
         }
@@ -52,6 +67,16 @@ router.post('/join', async (req, res) => {
         __room.player.push(dataPlayer);
 
         __emmit.emit("join", dataPlayer);
+
+        if (__room.player.length >= 2) {
+            const turnPlay = __room.player[0].characters.concat(__room.player[1].characters);
+            
+            turnPlay.sort((a, b) => b.speed - a.speed);
+
+            console.log(turnPlay);
+
+            __emmit.emit("list_turn_game", { turnPlay, turn: __room.currentTurn });
+        }
 
         return res.status(200).json(otherPlayer);
     } catch (error) {
