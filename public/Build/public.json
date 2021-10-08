@@ -1,0 +1,17 @@
+{
+"companyName": "CMU",
+"productName": "MultiplayerGame",
+"productVersion": "1.0",
+"dataUrl": "public.data.unityweb",
+"asmCodeUrl": "public.asm.code.unityweb",
+"asmMemoryUrl": "public.asm.memory.unityweb",
+"asmFrameworkUrl": "public.asm.framework.unityweb",
+"TOTAL_MEMORY": 268435456,
+"graphicsAPI": ["WebGL 2.0"],
+"webglContextAttributes": {"preserveDrawingBuffer": false},
+"splashScreenStyle": "Dark",
+"backgroundColor": "#231F20",
+"developmentBuild": false,
+"multithreading": false,
+"unityVersion": "2019.4.4f1"
+}
