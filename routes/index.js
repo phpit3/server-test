@@ -22,7 +22,7 @@ router.post('/join', async (req, res) => {
         }
 
         const dataPlayer = {
-            name: 'Player_' + __room.currentCount,
+            name: 'player' + __room.currentCount,
             characters: [
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
