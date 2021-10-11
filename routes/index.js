@@ -30,6 +30,7 @@ router.post('/join', async (req, res) => {
                     health: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
+                    order: 0,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
@@ -37,6 +38,7 @@ router.post('/join', async (req, res) => {
                     health: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
+                    order: 1,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
@@ -44,6 +46,7 @@ router.post('/join', async (req, res) => {
                     health: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
+                    order: 2,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
@@ -51,6 +54,7 @@ router.post('/join', async (req, res) => {
                     health: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
+                    order: 3,
                 },
                 {
                     name: NAME[Math.floor(Math.random() * 2)],
@@ -58,6 +62,7 @@ router.post('/join', async (req, res) => {
                     health: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
+                    order: 4,
                 }
             ],
         }
