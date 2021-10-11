@@ -21,7 +21,7 @@ router.post('/join', async (req, res) => {
             return res.status(200).json({});
         }
 
-        const dataPlayer = {
+        const playerData = {
             name: 'player' + __room.currentCount,
             characters: [
                 {
@@ -64,9 +64,9 @@ router.post('/join', async (req, res) => {
 
         const otherPlayer = __room.player[0];
 
-        __room.player.push(dataPlayer);
+        __room.player.push(playerData);
 
-        __emmit.emit("join", dataPlayer);
+        __emmit.emit("join", playerData);
 
         if (__room.player.length >= 2) {
             const turnPlay = __room.player[0].characters.concat(__room.player[1].characters);
@@ -78,7 +78,7 @@ router.post('/join', async (req, res) => {
             __emmit.emit("start_combat", true);
         }
 
-        return res.status(200).json({ rolePlay: 'player' + __room.currentCount });
+        return res.status(200).json({ rolePlay: 'player' + __room.currentCount, playerData });
     } catch (error) {
         return res.send(error).status(200);
     }
