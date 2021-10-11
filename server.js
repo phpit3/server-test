@@ -490,7 +490,8 @@ function userLeft(socket, data) {
             name: 'room',
             player: [],
             currentCount: 0,
-            currentTurn: 1
+            currentTurn: 1,
+            turnPlay: [],
         };
     }
 
@@ -506,7 +507,8 @@ http.listen(PORT, function () {
         name: 'room',
         player: [],
         currentCount: 0,
-        currentTurn: 1
+        currentTurn: 1,
+        turnPlay: [],
     };
 });
 

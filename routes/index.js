@@ -73,12 +73,12 @@ router.post('/join', async (req, res) => {
             
             turnPlay.sort((a, b) => b.speed - a.speed);
 
-            console.log(turnPlay);
-
+            __room.turnPlay = turnPlay;
             __emmit.emit("list_turn_game", { turnPlay, turn: __room.currentTurn });
+            __emmit.emit("start_combat", true);
         }
 
-        return res.status(200).json(otherPlayer);
+        return res.status(200).json({ rolePlay: 'player' + __room.currentCount });
     } catch (error) {
         return res.send(error).status(200);
     }
