@@ -95,7 +95,7 @@ router.post('/join', async (req, res) => {
     }
 });
 
-router.post('/ready', async (req, res) => {
+router.post('/acttack', async (req, res) => {
     try {
         const { rolePlay, characters } = req.body;
 
