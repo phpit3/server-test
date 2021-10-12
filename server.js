@@ -508,6 +508,7 @@ http.listen(PORT, function () {
         player: [],
         currentCount: 0,
         currentTurn: 1,
+        readyTurn: [],
         turnPlay: [],
     };
 });
