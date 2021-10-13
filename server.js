@@ -23,6 +23,10 @@ var express = require('express');
 var app = express();
 const cors = require('cors');
 var fs = require("fs");
+const BodyParser = require('body-parser');
+const Cors = require('cors');
+const Helmet = require('helmet');
+const Compress = require('compression');
 var http = require('http').createServer(app);
 var io = require('socket.io')(http, { 'pingInterval': 2000, 'pingTimeout': 5000 });
 const route = require("./routes");
@@ -71,8 +75,12 @@ if (gameState == null) {
 
 //when a client connects serve the static files in the public directory ie public/index.html
 app
+    .use(Compress())
+    .use(BodyParser.urlencoded({ extended: false, limit: '50mb' }))
+    .use(BodyParser.json({ limit: '50mb' }))
     .use(cors())
     .use(express.static('public'))
+    .use(Helmet())
     .use(route);
 
 //when a client connects 
@@ -491,6 +499,7 @@ function userLeft(socket, data) {
             player: [],
             currentCount: 0,
             currentTurn: 1,
+            readyTurn: [],
             turnPlay: [],
         };
     }

@@ -18,7 +18,7 @@ router.post('/message', async (req, res) => {
 router.post('/join', async (req, res) => {
     try {
         __room.currentCount++;
-        
+        console.log(__room);
         if (__room.currentCount > 2) {
             return res.status(200).json({});
         }
@@ -30,7 +30,7 @@ router.post('/join', async (req, res) => {
                     _id: RnId(),
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
                     order: 0,
@@ -39,7 +39,7 @@ router.post('/join', async (req, res) => {
                     _id: RnId(),
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
                     order: 1,
@@ -48,7 +48,7 @@ router.post('/join', async (req, res) => {
                     _id: RnId(),
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
                     order: 2,
@@ -57,7 +57,7 @@ router.post('/join', async (req, res) => {
                     _id: RnId(),
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
                     order: 3,
@@ -66,13 +66,15 @@ router.post('/join', async (req, res) => {
                     _id: RnId(),
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    health: Math.floor(Math.random() * (1000 - 500) + 500),
+                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
                     mana: Math.floor(Math.random() * (600 - 300) + 300),
                     owner: 'player' + __room.currentCount,
                     order: 4,
                 }
             ],
         }
+        
+        playerData.characters.forEach(p => p.endHp = p.startHp);
 
         const otherPlayer = __room.player[0];
 
@@ -95,13 +97,18 @@ router.post('/join', async (req, res) => {
     }
 });
 
-router.post('/acttack', async (req, res) => {
+router.post('/attack', async (req, res) => {
     try {
         const { rolePlay, characters } = req.body;
 
         __room.player.forEach(player => {
             if (player.name === rolePlay) {
-                player.characters = characters;
+                player.characters.forEach(e => {
+                    const newValue = characters.find(c => c._id === e._id);
+                    if (newValue) {
+                        e = newValue;
+                    }
+                });
             }
         });
 
@@ -110,7 +117,6 @@ router.post('/acttack', async (req, res) => {
                 const character = characters.find(ch => ch._id === turn._id);
 
                 if (character) {
-                    turn.target = character.target;
                     turn.action = character.action;
                     turn.order = character.order;
 
@@ -126,6 +132,11 @@ router.post('/acttack', async (req, res) => {
                             break;
 
                         case "attack":
+                            const target = characters.find(c => c._id === character.targetId);
+                            if (target) {
+                                target.endHp = target.endHp - 50 > 0 ? target.endHp - 50 : 0;
+                                turn.target = target;
+                            }
                             break;
                     
                         default:
@@ -141,13 +152,13 @@ router.post('/acttack', async (req, res) => {
             __room.readyTurn.includes("player1") &&
             __room.readyTurn.includes("player2")
         ) {
-            __emmit.emit("start_combat", true);
+            __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: __room.turnPlay });
 
-            return res.status(200).json({ resultOneTurn: turnPlay });
+            return res.status(200).json({ turn: __room.currentTurn, turnPlay: __room.turnPlay });
         } else {
             __emmit.emit("ready_combat", { rolePlay });
 
-            return res.status(200).json({ success: true });
+            return res.status(200).json({ turn: __room.currentTurn, turnPlay: [] });
         }
     } catch (error) {
         return res.send(error).status(200);
