@@ -19,7 +19,7 @@ router.post('/message', async (req, res) => {
 router.post('/join', async (req, res) => {
     try {
         __room.currentCount++;
-        console.log(__room);
+
         if (__room.currentCount > 2) {
             return res.status(200).json({});
         }
@@ -32,7 +32,7 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    endMana: Math.floor(Math.random() * (600 - 300) + 300),
                     typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 0,
@@ -42,7 +42,7 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    endMana: Math.floor(Math.random() * (600 - 300) + 300),
                     typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 1,
@@ -82,7 +82,7 @@ router.post('/join', async (req, res) => {
         
         playerData.characters.forEach(p => {
             p.endHp = p.startHp;
-            p.endMana = p.startMana;
+            p.endMana = 0;
         });
 
         const otherPlayer = __room.player[0];
@@ -162,7 +162,7 @@ router.post('/attack', async (req, res) => {
             __room.readyTurn.includes("player2")
         ) {
             __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: __room.turnPlay });
-
+            console.log(__room.turnPlay);
             return res.status(200).json({ turn: __room.currentTurn, turnPlay: __room.turnPlay });
         } else {
             __emmit.emit("ready_combat", { rolePlay });
