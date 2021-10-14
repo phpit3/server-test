@@ -3,6 +3,7 @@ var express = require('express');
 const router = express.Router();
 
 const NAME = ['Mage', 'Reptile'];
+const TYPE_ATTACK = ['long', 'short'];
 
 const RnId = () => String(parseInt(Date.now() * Math.random()));
 
@@ -31,7 +32,8 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 0,
                 },
@@ -40,7 +42,8 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 1,
                 },
@@ -49,7 +52,8 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 2,
                 },
@@ -58,7 +62,8 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 3,
                 },
@@ -67,14 +72,18 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    mana: Math.floor(Math.random() * (600 - 300) + 300),
+                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 4,
                 }
             ],
         }
         
-        playerData.characters.forEach(p => p.endHp = p.startHp);
+        playerData.characters.forEach(p => {
+            p.endHp = p.startHp;
+            p.endMana = p.startMana;
+        });
 
         const otherPlayer = __room.player[0];
 
