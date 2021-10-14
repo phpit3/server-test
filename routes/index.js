@@ -32,7 +32,7 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    endMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
                     typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 0,
@@ -42,7 +42,7 @@ router.post('/join', async (req, res) => {
                     name: NAME[Math.floor(Math.random() * 2)],
                     speed: Math.floor(Math.random() * (500 - 200) + 200),
                     startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    endMana: Math.floor(Math.random() * (600 - 300) + 300),
+                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
                     typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
                     owner: 'player' + __room.currentCount,
                     order: 1,
@@ -146,6 +146,7 @@ router.post('/attack', async (req, res) => {
                                 target.endHp = target.endHp - 50 > 0 ? target.endHp - 50 : 0;
                                 turn.target = target;
                             }
+                            turn.endMana += 50;
                             break;
                     
                         default:
