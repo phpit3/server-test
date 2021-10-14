@@ -110,7 +110,7 @@ router.post('/attack', async (req, res) => {
     try {
         const { rolePlay, characters } = req.body;
 
-        __room.player.forEach(player => {
+        __room.player = __room.player.map(player => {
             if (player.name === rolePlay) {
                 player.characters.forEach(e => {
                     const newValue = characters.find(c => c._id === e._id);
@@ -119,15 +119,17 @@ router.post('/attack', async (req, res) => {
                     }
                 });
             }
+            return player;
         });
 
-        __room.turnPlay.forEach(turn => {
+        __room.turnPlay = __room.turnPlay.map(turn => {
             if (turn.owner === rolePlay) {
                 const newValue = characters.find(c => c._id === turn._id);
                 if (newValue) {
                     turn = newValue;
                 }
             }
+            return turn;
         });
 
         __room.readyTurn.push(rolePlay);
@@ -136,6 +138,7 @@ router.post('/attack', async (req, res) => {
             __room.readyTurn.includes("player1") &&
             __room.readyTurn.includes("player2")
         ) {
+            // console.log(__room.turnPlay);
             const updateDataTurn = __room.turnPlay.map(turn => {
                 if (turn.targetId.length > 0) {
                     switch (turn.action) {
