@@ -123,35 +123,9 @@ router.post('/attack', async (req, res) => {
 
         __room.turnPlay.forEach(turn => {
             if (turn.owner === rolePlay) {
-                const character = characters.find(ch => ch._id === turn._id);
-
-                if (character) {
-                    turn.action = character.action;
-                    turn.order = character.order;
-
-                    switch (character.action) {
-                        case "mana":
-                            
-                            break;
-
-                        case "skill":
-                            break;
-                        
-                        case "defense":
-                            break;
-
-                        case "attack":
-                            const target = characters.find(c => c._id === character.targetId);
-                            if (target) {
-                                target.endHp = target.endHp - 50 > 0 ? target.endHp - 50 : 0;
-                                turn.target = target;
-                            }
-                            turn.endMana += 50;
-                            break;
-                    
-                        default:
-                            break;
-                    }
+                const newValue = characters.find(c => c._id === turn._id);
+                if (newValue) {
+                    turn = newValue;
                 }
             }
         });
@@ -162,17 +136,56 @@ router.post('/attack', async (req, res) => {
             __room.readyTurn.includes("player1") &&
             __room.readyTurn.includes("player2")
         ) {
-            __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: __room.turnPlay });
-            console.log(__room.turnPlay);
-            return res.status(200).json({ turn: __room.currentTurn, turnPlay: __room.turnPlay });
+            const updateDataTurn = __room.turnPlay.map(turn => {
+                if (turn.targetId.length > 0) {
+                    switch (turn.action) {
+                        case "mana":
+
+                            break;
+    
+                        case "skill":
+                            if (turn.skill === "ca_sau") {
+                                turn.target.forEach(e => {
+                                    e.endHp = e.endHp - 150 > 0 ? e.endHp - 150 : 0;
+                                });
+                                turn.endMana -= 150;
+                            }
+                            break;
+                        
+                        case "defense":
+                            break;
+    
+                        case "attack":
+                            // const target = getChampFromPlayerData(turn.targetId[0]);
+                            turn.target[0].endHp = turn.target[0].endHp - 50 > 0 ? turn.target[0].endHp - 50 : 0;
+                            turn.endMana += 50;
+                            break;
+                    
+                        default:
+                            break;
+                    }
+                }
+    
+                return turn;
+            });
+
+            __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: updateDataTurn });
+            console.log(updateDataTurn);
+            return res.status(200).json({ turn: __room.currentTurn, turnPlay: updateDataTurn });
         } else {
             __emmit.emit("ready_combat", { rolePlay });
 
             return res.status(200).json({ turn: __room.currentTurn, turnPlay: [] });
         }
     } catch (error) {
+        console.log(error);
         return res.send(error).status(200);
     }
 });
+
+function getChampFromPlayerData(champId) {
+    const champs = __room.player[0].characters.concat(__room.player[1].characters);
+    return champs.find(champ => champ._id === champId);
+}
 
 module.exports = router;
