@@ -26,58 +26,7 @@ router.post('/join', async (req, res) => {
 
         const playerData = {
             name: 'player' + __room.currentCount,
-            characters: [
-                {
-                    _id: RnId(),
-                    name: NAME[Math.floor(Math.random() * 2)],
-                    speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
-                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
-                    owner: 'player' + __room.currentCount,
-                    order: 0,
-                },
-                {
-                    _id: RnId(),
-                    name: NAME[Math.floor(Math.random() * 2)],
-                    speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
-                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
-                    owner: 'player' + __room.currentCount,
-                    order: 1,
-                },
-                {
-                    _id: RnId(),
-                    name: NAME[Math.floor(Math.random() * 2)],
-                    speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
-                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
-                    owner: 'player' + __room.currentCount,
-                    order: 2,
-                },
-                {
-                    _id: RnId(),
-                    name: NAME[Math.floor(Math.random() * 2)],
-                    speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
-                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
-                    owner: 'player' + __room.currentCount,
-                    order: 3,
-                },
-                {
-                    _id: RnId(),
-                    name: NAME[Math.floor(Math.random() * 2)],
-                    speed: Math.floor(Math.random() * (500 - 200) + 200),
-                    startHp: Math.floor(Math.random() * (1000 - 500) + 500),
-                    startMana: Math.floor(Math.random() * (600 - 300) + 300),
-                    typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
-                    owner: 'player' + __room.currentCount,
-                    order: 4,
-                }
-            ],
+            characters: genChampions(),
         }
         
         playerData.characters.forEach(p => {
@@ -139,6 +88,8 @@ router.post('/attack', async (req, res) => {
             __room.readyTurn.includes("player2")
         ) {
             // console.log(__room.turnPlay);
+            let index = 0;
+
             const updateDataTurn = __room.turnPlay.map(turn => {
                 if (turn.targetId.length > 0) {
                     switch (turn.action) {
@@ -159,9 +110,36 @@ router.post('/attack', async (req, res) => {
                             break;
     
                         case "attack":
-                            // const target = getChampFromPlayerData(turn.targetId[0]);
-                            turn.target[0].endHp = turn.target[0].endHp - 50 > 0 ? turn.target[0].endHp - 50 : 0;
+                            // Cc : BE => check sau do no co trong target ko va mau endHP bao nhieu
+
+                            // hurt
+                            turn.target[0].endHp = turn.target[0].endHp < 50 ? 0 : turn.target[0].endHp - 50;
+
+                            // attack
                             turn.endMana += 50;
+
+                            for (let i = index + 1; i < __room.turnPlay.length; i++) {
+                                // object => attack : only exists in hurt <target>
+                                if (__room.turnPlay[i].targetId.includes(turn._id)) {
+                                    for (let j = 0; j < __room.turnPlay[i].target.length; j++) {
+                                        if (__room.turnPlay[i].target[j]._id === turn._id) {
+                                            __room.turnPlay[i].target[j].endMana = turn.endMana;
+                                        }
+                                    }
+                                }
+                                // object => hurt : exists in attack <author> or hurt <target>
+                                if (__room.turnPlay[i]._id === turn.target[0]._id) {
+                                    __room.turnPlay[i].endHp = turn.target[0].endHp;
+                                }
+
+                                if (__room.turnPlay[i].targetId.includes(turn.target[0]._id)) {
+                                    for (let j = 0; j < __room.turnPlay[i].target.length; j++) {
+                                        if (__room.turnPlay[i].target[j]._id === turn.target[0]._id) {
+                                            __room.turnPlay[i].target[j].endHp = turn.target[0].endHp;
+                                        }
+                                    }
+                                }
+                            }
                             break;
                     
                         default:
@@ -169,11 +147,12 @@ router.post('/attack', async (req, res) => {
                     }
                 }
     
+                index++;
                 return turn;
             });
 
             __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: updateDataTurn });
-            console.log(updateDataTurn);
+            console.log('updateDataTurn: ', updateDataTurn);
             return res.status(200).json({ turn: __room.currentTurn, turnPlay: updateDataTurn });
         } else {
             __emmit.emit("ready_combat", { rolePlay });
@@ -189,6 +168,25 @@ router.post('/attack', async (req, res) => {
 function getChampFromPlayerData(champId) {
     const champs = __room.player[0].characters.concat(__room.player[1].characters);
     return champs.find(champ => champ._id === champId);
+}
+
+function genChampions() {
+    let data = [];
+
+    for (let i = 0; i < 5; i++) {
+        data.push({
+            _id: RnId(),
+            name: NAME[Math.floor(Math.random() * 2)],
+            speed: Math.floor(Math.random() * (500 - 200) + 200),
+            startHp: Math.floor(Math.random() * (1000 - 500) + 500),
+            startMana: Math.floor(Math.random() * (600 - 300) + 300),
+            typeAttack: TYPE_ATTACK[Math.floor(Math.random() * 2)],
+            owner: 'player' + __room.currentCount,
+            order: i,
+        });
+    }
+
+    return data;
 }
 
 module.exports = router;
