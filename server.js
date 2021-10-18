@@ -499,6 +499,7 @@ function userLeft(socket, data) {
             player: [],
             currentCount: 0,
             currentTurn: 1,
+            endTurn: [],
             readyTurn: [],
             turnPlay: [],
         };
@@ -517,6 +518,7 @@ http.listen(PORT, function () {
         player: [],
         currentCount: 0,
         currentTurn: 1,
+        endTurn: [],
         readyTurn: [],
         turnPlay: [],
     };
