@@ -89,6 +89,7 @@ router.post('/attack', async (req, res) => {
             __room.readyTurn.includes("player2")
         ) {
             let index = 0;
+
             let diePlayer1ChampIds = [];
             let diePlayer2ChampIds = [];
 
@@ -105,7 +106,7 @@ router.post('/attack', async (req, res) => {
                         case "skill":
                             if (turn.skill === "ca_sau") {
                                 turn.target.forEach(e => {
-                                    e.endHp = e.endHp - 150 > 0 ? e.endHp - 150 : 0;
+                                    e.endHp = e.endHp - 250 > 0 ? e.endHp - 250 : 0;
                                 });
                                 turn.endMana -= 150;
                             }
@@ -122,10 +123,16 @@ router.post('/attack', async (req, res) => {
                             // Cc : BE => check sau do no co trong target ko va mau endHP bao nhieu
 
                             // hurt
-                            turn.target[0].endHp = turn.target[0].endHp < 50 ? 0 : turn.target[0].endHp - 50;
+                            turn.target[0].endHp = turn.target[0].endHp < 150 ? 0 : turn.target[0].endHp - 150;
 
                             if (turn.target[0].endHp === 0) {
-                                dieChampIds.push(turn.target[0]._id);
+                                if (turn.target[0].owner === "player1") {
+                                    diePlayer1ChampIds.push(turn.target[0]._id);
+                                }
+
+                                if (turn.target[0].owner === "player2") {
+                                    diePlayer2ChampIds.push(turn.target[0]._id);
+                                }
                             }
 
                             // attack
@@ -186,7 +193,7 @@ router.post('/attack', async (req, res) => {
             });
 
             __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: updateDataTurn });
-            console.log('updateDataTurn: ', updateDataTurn);
+            // console.log('updateDataTurn: ', updateDataTurn);
             return res.status(200).json({ turn: __room.currentTurn, turnPlay: updateDataTurn });
         } else {
             __emmit.emit("ready_combat", { rolePlay });
@@ -216,7 +223,7 @@ router.post('/end-turn', async (req, res) => {
                 turnPlay = __room.player[0].characters.concat(__room.player[1].characters);
                 
                 turnPlay.sort((a, b) => b.speed - a.speed);
-
+                turnPlay = _.reverse(turnPlay);
                 __room.turnPlay = turnPlay;
                 __emmit.emit("list_turn_game", { turnPlay, turn: __room.currentTurn });
             }
@@ -238,15 +245,17 @@ function getChampFromPlayerData(champId) {
 
 function genChampions() {
     let data = [];
-    const name = NAME[Math.floor(Math.random() * 2)];
-    let typeAttack = 'short';
-    if (name === 'Melee') {
-        typeAttack = 'short';
-    }
-    if (name === 'Ranged') {
-        typeAttack = 'long';
-    }
+
     for (let i = 0; i < 5; i++) {
+        const name = NAME[Math.floor(Math.random() * 2)];
+        let typeAttack = 'short';
+        if (name === 'Melee') {
+            typeAttack = 'short';
+        }
+        if (name === 'Ranged') {
+            typeAttack = 'long';
+        }
+
         data.push({
             _id: RnId(),
             name,
