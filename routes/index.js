@@ -118,6 +118,8 @@ router.post('/attack', async (req, res) => {
                         case "attack":
                             // neu thang danh ko co mau thi danh dc ai ??? => out
                             if (turn.endHp <= 0) {
+                                turn.targetId = [];
+                                turn.target = [];
                                 break;
                             }
                             // Cc : BE => check sau do no co trong target ko va mau endHP bao nhieu
@@ -137,6 +139,7 @@ router.post('/attack', async (req, res) => {
 
                             // attack
                             turn.endMana += 50;
+                            turn.damageOneTurn = 150;
 
                             for (let i = index + 1; i < __room.turnPlay.length; i++) {
                                 // object => attack : only exists in hurt <target>
@@ -171,6 +174,7 @@ router.post('/attack', async (req, res) => {
                 return turn;
             });
 
+            __room.readyTurn = [];
             __room.turnPlay = updateDataTurn;
 
             if (diePlayer1ChampIds.length >= 5) {
@@ -188,11 +192,14 @@ router.post('/attack', async (req, res) => {
                     if (!dieChampIds.includes(champ._id)) {
                         newDataCharacters.push(champ);
                     }
+                    champ.action = null;
+                    champ.targetId = [];
+                    champ.target = [];
                 }
                 player.characters = newDataCharacters;
             });
-
-            __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: updateDataTurn });
+            console.log("start_combat: ", updateDataTurn);
+            __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: updateDataTurn, playerDatas: __room.player });
             // console.log('updateDataTurn: ', updateDataTurn);
             return res.status(200).json({ turn: __room.currentTurn, turnPlay: updateDataTurn });
         } else {
@@ -217,14 +224,16 @@ router.post('/end-turn', async (req, res) => {
             __room.endTurn.includes("player2")
         ) {
             __room.currentTurn++;
+            console.log('turn current: ', __room.currentTurn);
             let turnPlay;
         
             if (__room.player.length >= 2) {
                 turnPlay = __room.player[0].characters.concat(__room.player[1].characters);
                 
                 turnPlay.sort((a, b) => b.speed - a.speed);
-                turnPlay = _.reverse(turnPlay);
+                // turnPlay = _.reverse(turnPlay);
                 __room.turnPlay = turnPlay;
+                __room.endTurn = [];
                 __emmit.emit("list_turn_game", { turnPlay, turn: __room.currentTurn });
             }
 
@@ -247,7 +256,7 @@ function genChampions() {
     let data = [];
 
     for (let i = 0; i < 5; i++) {
-        const name = NAME[Math.floor(Math.random() * 2)];
+        let name = NAME[Math.floor(Math.random() * 2)];
         let typeAttack = 'short';
         if (name === 'Melee') {
             typeAttack = 'short';
