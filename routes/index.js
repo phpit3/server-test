@@ -65,7 +65,10 @@ router.post('/attack', async (req, res) => {
                 player.characters.forEach(e => {
                     const newValue = characters.find(c => c._id === e._id);
                     if (newValue) {
-                        e = newValue;
+                        // e = newValue;
+                        e.action = newValue.action;
+                        e.targetId = newValue.targetId;
+                        e.target = newValue.target;
                     }
                 });
             }
@@ -76,7 +79,8 @@ router.post('/attack', async (req, res) => {
             if (turn.owner === rolePlay) {
                 const newValue = characters.find(c => c._id === turn._id);
                 if (newValue) {
-                    turn = newValue;
+                    // turn = newValue;
+                    return newValue;
                 }
             }
             return turn;
@@ -95,6 +99,19 @@ router.post('/attack', async (req, res) => {
 
             let slowNextTurnChampIds = [];
             let reduceDamageNextTurnChampIds = [];
+
+            let bloodManaChampAfterTurn = __room.turnPlay.map(turn => {
+                let bloodManaInfo = {
+                    _id: turn._id,
+                    minusBlood: 0,
+                    plusMana: 0,
+                };
+                return bloodManaInfo;
+            });
+            // [
+            //     {_id: 1, minusBlood: 200, plusMana: 50},
+            //     {_id: 2, minusBlood: 100, plusMana: 0},
+            // ]
 
             const updateDataTurn = __room.turnPlay.map(turn => {
                 if (turn.targetId.length > 0) {
@@ -126,6 +143,8 @@ router.post('/attack', async (req, res) => {
 
                             // hurt
                             turn.target[0].endHp = turn.target[0].endHp < 150 ? 0 : turn.target[0].endHp - 150;
+                            turn.target[0].damageOneTurn = 150;
+                            updateBloodManaChampAfterTurn(bloodManaChampAfterTurn, turn.target[0]._id, 150);
 
                             if (turn.target[0].endHp === 0) {
                                 if (turn.target[0].owner === "player1") {
@@ -139,6 +158,7 @@ router.post('/attack', async (req, res) => {
 
                             // attack
                             turn.endMana += 50;
+                            updateBloodManaChampAfterTurn(bloodManaChampAfterTurn, turn._id, 0, 50);
                             turn.damageOneTurn = 150;
 
                             for (let i = index + 1; i < __room.turnPlay.length; i++) {
@@ -188,19 +208,23 @@ router.post('/attack', async (req, res) => {
             __room.player.forEach(player => {
                 const newDataCharacters = [];
                 for (let i = 0; i < player.characters.length; i++) {
-                    const champ = player.characters[i];
-                    if (!dieChampIds.includes(champ._id)) {
-                        newDataCharacters.push(champ);
+                    player.characters[i].action = null;
+                    player.characters[i].targetId = [];
+                    player.characters[i].target = [];
+
+                    const infoBloodMana = bloodManaChampAfterTurn.find(info => info._id === player.characters[i]._id);
+                    player.characters[i].endHp = player.characters[i].endHp - infoBloodMana.minusBlood;
+                    player.characters[i].endMana += infoBloodMana.plusMana;
+
+                    if (!dieChampIds.includes(player.characters[i]._id)) {
+                        newDataCharacters.push(player.characters[i]);
                     }
-                    champ.action = null;
-                    champ.targetId = [];
-                    champ.target = [];
                 }
                 player.characters = newDataCharacters;
             });
-            console.log("start_combat: ", updateDataTurn);
+
             __emmit.emit("start_combat", { turn: __room.currentTurn, turnPlay: updateDataTurn, playerDatas: __room.player });
-            // console.log('updateDataTurn: ', updateDataTurn);
+
             return res.status(200).json({ turn: __room.currentTurn, turnPlay: updateDataTurn });
         } else {
             __emmit.emit("ready_combat", { rolePlay });
@@ -224,7 +248,6 @@ router.post('/end-turn', async (req, res) => {
             __room.endTurn.includes("player2")
         ) {
             __room.currentTurn++;
-            console.log('turn current: ', __room.currentTurn);
             let turnPlay;
         
             if (__room.player.length >= 2) {
@@ -299,6 +322,15 @@ function endGame(res, result) {
     resetDataRoomFake();
 
     return res.status(200).json({ result });
+}
+
+function updateBloodManaChampAfterTurn(bloodManaChampAfterTurn, champId, minusBlood = 0, plusMana = 0) {
+    bloodManaChampAfterTurn.map(infoChamp => {
+        if (infoChamp._id === champId) {
+            infoChamp.minusBlood += minusBlood;
+            infoChamp.plusMana += plusMana;
+        }
+    });
 }
 
 module.exports = router;
