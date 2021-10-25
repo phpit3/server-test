@@ -213,7 +213,7 @@ router.post('/attack', async (req, res) => {
                     player.characters[i].target = [];
 
                     const infoBloodMana = bloodManaChampAfterTurn.find(info => info._id === player.characters[i]._id);
-                    player.characters[i].endHp = player.characters[i].endHp - infoBloodMana.minusBlood;
+                    player.characters[i].endHp = player.characters[i].endHp < infoBloodMana.minusBlood ? 0 : player.characters[i].endHp - infoBloodMana.minusBlood;
                     player.characters[i].endMana += infoBloodMana.plusMana;
 
                     if (!dieChampIds.includes(player.characters[i]._id)) {
@@ -252,6 +252,12 @@ router.post('/end-turn', async (req, res) => {
         
             if (__room.player.length >= 2) {
                 turnPlay = __room.player[0].characters.concat(__room.player[1].characters);
+
+                if (__room.player[0].characters.length <= 0) {
+                    return __room.player[0].name === "player1" ? endGame(res, { win: 'player2' }) : endGame(res, { win: 'player1' });
+                } else if (__room.player[1].characters.length <= 0) {
+                    return __room.player[1].name === "player2" ? endGame(res, { win: 'player1' }) : endGame(res, { win: 'player2' });
+                }
                 
                 turnPlay.sort((a, b) => b.speed - a.speed);
                 // turnPlay = _.reverse(turnPlay);
