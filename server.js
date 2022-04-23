@@ -85,6 +85,8 @@ app
 
 //when a client connects 
 io.on('connection', function (socket) {
+    const token = socket.request._query.token;
+    console.log(token);
     //this appears in the server's terminal
     console.log('A user connected');
     //this is sent to the client 
